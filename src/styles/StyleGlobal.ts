@@ -39,6 +39,8 @@ h2 {
   font-size: 2.4em;
   line-height: 1.1;
   color: #646cff;
+  font-family: Poppins;
+  font-weight: 700;
 }
 
 button {

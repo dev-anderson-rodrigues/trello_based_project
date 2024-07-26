@@ -9,13 +9,15 @@ export const Form = styled.form`
   gap: 2rem;
 
   .logo {
-    top: 120px;
+    top: 60px;
     width: 100%;
     text-align: center;
     justify-content: center;
     align-items: center;
   }
-
+  h2 {
+    padding-top: 20px;
+  }
   button {
     width: 100%;
     padding: 0.5rem 1rem;
