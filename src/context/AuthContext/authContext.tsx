@@ -1,77 +1,41 @@
-import { createContext, useState, useEffect } from "react";
-import { IAuthProvider, IContext, IUser } from "./types";
-import {
-  LoginRequest,
-  RegisterRequest,
-  getUserLocalStorage,
-  setUserLocalStorage,
-} from "./util";
+import React, { createContext, useEffect, useState } from "react";
+import { IAuthContext, IUser } from "./types";
+import { login as apiLogin, create } from "./util";
 
-export const AuthContext = createContext<IContext>({} as IContext);
+export const AuthContext = createContext<IAuthContext | undefined>(undefined);
 
-export const AuthProvider = ({ children }: IAuthProvider) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<IUser | null>(null);
+  // const navigate = useNavigate();
 
   useEffect(() => {
-    console.log("Checking localStorage for user...");
-    const storedUser = getUserLocalStorage();
-
+    const storedUser = localStorage.getItem("token");
     if (storedUser) {
-      setUser(storedUser);
-      setIsAuthenticated(true);
+      setIsAuthenticated(() => true);
     }
   }, []);
-
-  async function login(email: string, password: string) {
-    try {
-      const response = await LoginRequest(email, password);
-      const payload = { token: response.token, email };
-
-      setUser(payload);
-      setUserLocalStorage(payload);
-      setIsAuthenticated(true);
-    } catch (error) {
-      console.error("Login failed:", error);
-      throw error;
-    }
-  }
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem("user");
+  const login = async (email: string, password: string) => {
+    const data = await apiLogin(email, password);
+    localStorage.setItem("token", data);
+    setUser(data);
+    setIsAuthenticated(true);
   };
-  async function registrationUser(
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) {
-    try {
-      if (!name || !email || !password || !confirmPassword) {
-        console.error("All fields are required");
-        return;
-      }
-      if (password !== confirmPassword) {
-        console.error("Passwords do not match");
-        return;
-      }
-      await RegisterRequest(name, email, password);
-      console.log("User registered successfully");
-    } catch (error) {
-      console.error("Registration failed:", error);
-      throw error;
-    }
-  }
+  const createUser = async (name: string, email: string, password: string) => {
+    const response = await create(name, email, password);
+    const token = response.data;
+    localStorage.setItem("token", token);
+    setUser(token);
+    setIsAuthenticated(true);
+  };
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
   return (
     <AuthContext.Provider
-      value={{
-        isAuthenticated,
-        login,
-        registrationUser,
-        user,
-        logout,
-      }}
+      value={{ user, isAuthenticated, createUser, login, logout }}
     >
       {children}
     </AuthContext.Provider>

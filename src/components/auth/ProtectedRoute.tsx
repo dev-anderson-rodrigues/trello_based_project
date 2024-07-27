@@ -8,11 +8,13 @@ const ProtectedRoute: React.FC = () => {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Simulando uma verificação de autenticação que pode levar algum tempo
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoading(false);
     };
 
     checkAuth();
-  }, [setLoading]);
+  }, []);
 
   if (loading) {
     return <div>Loading...</div>;

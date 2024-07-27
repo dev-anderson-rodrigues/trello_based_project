@@ -1,6 +1,7 @@
 import { styled } from "styled-components";
 
 export const Form = styled.form`
+  width: 100%;
   display: flex;
   flex-direction: column;
   display: flex;
@@ -17,13 +18,15 @@ export const Form = styled.form`
   }
   h2 {
     padding-top: 20px;
+    font-size: 1.5rem;
   }
   button {
-    width: 100%;
+    width: 90%;
     padding: 0.5rem 1rem;
     color: white;
     border-radius: 5px;
     cursor: pointer;
+    max-width: inherit;
   }
 
   .container_link {
@@ -32,6 +35,10 @@ export const Form = styled.form`
     align-items: center;
     text-align: center;
     justify-content: center;
+    width: max-content;
+    max-width: fit-content;
+    margin: auto;
+    font-size: inherit;
 
     span {
       width: 6px;

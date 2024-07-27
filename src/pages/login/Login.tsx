@@ -7,8 +7,10 @@ const Login = () => {
 
   return (
     <Container
-      padding={isMobile ? "0px" : "10px"}
-      backgroundColor={isMobile ? "transparent" : ""}
+      style={{
+        padding: isMobile ? "0px" : "10px",
+        backgroundColor: isMobile ? "transparent" : "",
+      }}
     >
       {!isMobile && (
         <span className="logo">

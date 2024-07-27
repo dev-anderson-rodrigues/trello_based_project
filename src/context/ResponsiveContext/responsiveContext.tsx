@@ -9,6 +9,7 @@ export const ResponsiveProvider = ({
   children: React.ReactNode;
 }) => {
   const [responsive, setResponsive] = useState<IResponsive>({
+    isMobileLow: window.innerWidth <= 500,
     isMobile: window.innerWidth <= 768,
     isTablet: window.innerWidth <= 1024 && window.innerWidth > 768,
     isDesktop: window.innerWidth > 1024,
@@ -16,6 +17,7 @@ export const ResponsiveProvider = ({
   useEffect(() => {
     const handleResize = () => {
       setResponsive({
+        isMobileLow: window.innerWidth <= 500,
         isMobile: window.innerWidth <= 768,
         isTablet: window.innerWidth <= 1024 && window.innerWidth > 768,
         isDesktop: window.innerWidth > 1024,

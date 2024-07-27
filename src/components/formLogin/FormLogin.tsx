@@ -1,45 +1,65 @@
-import { SubmitHandler, useForm } from "react-hook-form";
-import { User } from "../../context/AuthContext/types";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../context/AuthContext/useAuth";
+import { useForm } from "react-hook-form";
+// import { useNavigate } from "react-router-dom";
+// import { useAuth } from "../../context/AuthContext/useAuth";
 import Input from "../input/Input";
 import { Box } from "@mui/material";
 import { Form } from "./styles";
 import { useResponsive } from "../../context/ResponsiveContext/useResponsive";
 import { useState } from "react";
+import { useAuth } from "../../context/AuthContext/useAuth";
+import { User } from "../../context/AuthContext/types";
+import { useNavigate } from "react-router-dom";
 
 const FormLogin = () => {
-  const navigate = useNavigate();
-  const { login, registrationUser } = useAuth();
-  const { isMobile } = useResponsive();
+  const { login, createUser } = useAuth();
+  const { isMobile, isMobileLow } = useResponsive();
   const [registration, setRegistration] = useState(false);
 
   const {
     handleSubmit,
     register,
-    watch,
+    getValues,
+    reset,
     formState: { errors, isSubmitting, isValid },
   } = useForm<User>();
-  const password = watch("password", "");
+  const navigate = useNavigate();
 
-  const handleSubmitLogin: SubmitHandler<User> = async ({
-    email,
-    password,
-  }) => {
-    // Simulate authentication logic
-    await login(email, password);
-    navigate("/dashboard");
-  };
-
-  const handleSubmitRegistration: SubmitHandler<User> = async ({
+  const handleFormSubmit = async ({
     name,
     email,
     password,
     confirmPassword,
-  }) => {
-    await registrationUser(name!, email, password, confirmPassword!);
-    setRegistration(false);
+  }: User) => {
+    if (registration) {
+      if (!name || !email || !password || !confirmPassword) {
+        console.error("Email or password is missing");
+        return {
+          success: false,
+          message: "Email or password is missing",
+        };
+      }
+      if (password !== confirmPassword) {
+        console.error("Passwords do not match");
+        return;
+      }
+      const response = await createUser(name, email, password);
+      navigate("/dashboard");
+      return response;
+    } else {
+      if (!email || !password) {
+        console.error("Email or password is missing");
+        return {
+          success: false,
+          message: "Email or password is missing",
+        };
+      }
+      const response = await login(email, password);
+
+      navigate("/dashboard");
+      return response;
+    }
   };
+
   return (
     <Box
       component="section"
@@ -49,21 +69,20 @@ const FormLogin = () => {
         backgroundColor: "white",
         borderRadius: "10px",
         boxShadow: "0px 0px 10px rgba(0, 0, 0, 0.2)",
-        // width: "500px",
-        // height: registration ? "80vh" : isMobile ? "100vh" : "70vh",
         height: isMobile ? "100vh" : "auto",
-        width: isMobile ? "100vw" : "auto",
+        width: isMobile ? "100vw" : "500px",
         margin: isMobile ? "0px" : "0 auto",
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <Form
-        onSubmit={handleSubmit(handleSubmitLogin || handleSubmitRegistration)}
-      >
+      <Form onSubmit={handleSubmit(handleFormSubmit)}>
         {isMobile && (
-          <span className="logo">
+          <span
+            className="logo"
+            style={{ top: isMobileLow && errors.password ? "5px" : "90px" }}
+          >
             <h2>Arnia Trello</h2>
           </span>
         )}
@@ -73,8 +92,18 @@ const FormLogin = () => {
             label="Nome"
             type="text"
             autoComplete="name"
-            {...register("name", { required: "Nome é obrigatório" })}
-            error={!!errors.name}
+            {...register("name", {
+              required: "Nome é obrigatório",
+              maxLength: {
+                value: 50,
+                message: "O nome não pode ter mais de 50 caracteres",
+              },
+              minLength: {
+                value: 5,
+                message: "O nome deve ter pelo menos 5 caracteres",
+              },
+            })}
+            error={!!errors.name?.message}
             helperText={errors.name?.message}
           />
         )}
@@ -89,7 +118,7 @@ const FormLogin = () => {
               message: "Email inválido",
             },
           })}
-          error={!!errors.email}
+          error={!!errors.email?.message}
           helperText={errors.email?.message}
         />
 
@@ -110,7 +139,7 @@ const FormLogin = () => {
             pattern: {
               value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,30}$/,
               message:
-                "A senha deve conter uma letra maiúscula, uma minúscula, um número, um caractere especial válido e não pode ter menos de 6 caracteres",
+                "A senha deve conter uma letra maiúscula, uma minúscula, um número, um caractere especial válido e não pode ter menos de 6 caracteres. {@$!%*?&}",
             },
           })}
           error={!!errors.password?.message}
@@ -120,14 +149,13 @@ const FormLogin = () => {
           <Input
             label="Confirmar Senha"
             type="password"
-            autoComplete="current-password"
             {...register("confirmPassword", {
               required: "Confirmação de senha é obrigatória",
               validate: (value) =>
-                value === password || "As senhas não conferem",
+                value === getValues("password") || "As senhas não conferem",
             })}
-            error={!!errors.password?.message}
-            helperText={errors.password?.message}
+            error={!!errors.confirmPassword?.message}
+            helperText={errors.confirmPassword?.message}
           />
         )}
         <button type="submit" disabled={isSubmitting && !isValid}>
@@ -149,7 +177,12 @@ const FormLogin = () => {
         ) : (
           <p className="container_link">
             Não possui uma conta? <span></span>
-            <a href="#" onClick={() => setRegistration(!registration)}>
+            <a
+              href="#"
+              onClick={() => {
+                setRegistration(!registration), reset();
+              }}
+            >
               Crie uma agora
             </a>
           </p>

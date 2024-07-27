@@ -1,61 +1,20 @@
-import { Api } from "../../services/api";
-import { IUser } from "./types";
+// import { Api } from "../../services/api";
+// import axiosInstance from "axios";
+import axiosInstance, { API_URL } from "../../services/api";
 
-export const getUserLocalStorage = () => {
-  const user = localStorage.getItem("user");
-  return user ? JSON.parse(user) : null;
+export const login = async (email: string, password: string) => {
+  const response = await axiosInstance.post(`${API_URL}api/user/login`, {
+    email,
+    password,
+  });
+  return response.data;
 };
 
-export const setUserLocalStorage = (user: IUser | null) => {
-  if (!user) {
-    localStorage.removeItem("user");
-  } else {
-    localStorage.setItem("user", JSON.stringify(user));
-  }
+export const create = async (name: string, email: string, password: string) => {
+  const response = await axiosInstance.post(`${API_URL}api/user`, {
+    name,
+    email,
+    password,
+  });
+  return response.data;
 };
-
-export async function LoginRequest(email: string, password: string) {
-  try {
-    if (!email || !password) {
-      console.error("Email or password is missing");
-      return;
-    }
-
-    const request = await Api.post("login", {
-      email,
-      password,
-    });
-
-    console.log(request.data);
-    return request.data;
-  } catch (err) {
-    return {
-      success: false,
-      message: "An error occurred while attempting to login.",
-    };
-  }
-}
-export async function RegisterRequest(
-  name: string,
-  email: string,
-  password: string
-) {
-  try {
-    if (!name || !email || !password) {
-      console.error("Name, email or password is missing");
-      return;
-    }
-    const request = await Api.post("register", {
-      name,
-      email,
-      password,
-    });
-    console.log(request.data);
-    return request.data;
-  } catch (err) {
-    return {
-      success: false,
-      message: "An error occurred while attempting to register.",
-    };
-  }
-}

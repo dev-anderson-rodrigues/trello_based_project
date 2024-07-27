@@ -1,28 +1,18 @@
-export interface User {
+export interface IUser {
+  token: string;
+  name: string;
+}
+
+export interface IAuthContext {
+  user: IUser | null;
+  isAuthenticated: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  createUser: (name: string, email: string, password: string) => Promise<void>;
+  logout: () => void;
+}
+export type User = {
   name?: string;
   email: string;
   password: string;
   confirmPassword?: string;
-}
-
-export interface IUser {
-  email?: string;
-  token?: string;
-}
-
-export interface IContext extends IUser {
-  isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  registrationUser: (
-    name: string,
-    email: string,
-    password: string,
-    confirmPassword: string
-  ) => Promise<void>;
-  logout: () => void;
-  user: IUser | null;
-}
-
-export interface IAuthProvider {
-  children?: JSX.Element;
-}
+};

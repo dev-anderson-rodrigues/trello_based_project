@@ -6,8 +6,10 @@ const BaseLayout = () => {
   const { isTablet, isDesktop } = useResponsive();
   return (
     <Container
-      paddingLeft={isTablet && isDesktop ? "0px" : "0px"}
-      paddingRight={isTablet && isDesktop ? "0px" : "0px"}
+      style={{
+        paddingLeft: isTablet && isDesktop ? "0px" : "0px",
+        paddingRight: isTablet && isDesktop ? "0px" : "0px",
+      }}
     >
       <Outlet />
     </Container>

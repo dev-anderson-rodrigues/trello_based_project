@@ -1,11 +1,6 @@
 import { styled } from "styled-components";
-interface isMobile {
-  paddingRight: string;
-  paddingLeft: string;
-  backgroundColor?: string;
-}
 
-export const Container = styled.div<isMobile>`
+export const Container = styled.div`
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -13,7 +8,7 @@ export const Container = styled.div<isMobile>`
   align-items: center;
   box-sizing: border-box;
   margin: 0;
-  background-color: ${(props) => props.backgroundColor || "transparent"};
-  padding-right: ${(props) => props.paddingRight || "0px"};
-  padding-left: ${(props) => props.paddingLeft || "0px"};
+  background-color: "transparent";
+  padding-right: "0px";
+  padding-left: "0px";
 `;

@@ -2,15 +2,11 @@ import { styled } from "styled-components";
 import imgLeft from "../../assets/images/trello-left.4f52d13c.svg";
 import imgRight from "../../assets/images/trello-right.e6e102c7.svg";
 
-export type containerProps = {
-  padding?: string;
-  backgroundColor?: string;
-};
-export const Container = styled.div<containerProps>`
+export const Container = styled.div`
   width: 100vw;
   height: 100vh;
-  padding: ${(props) => props.padding || "10px"};
-  background-color: ${(props) => props.backgroundColor || "#f5f5f5"};
+  padding: "10px";
+  background-color: "#f5f5f5";
   display: flex;
   justify-content: center;
   align-items: center;
