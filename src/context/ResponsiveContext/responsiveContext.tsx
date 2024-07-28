@@ -9,25 +9,26 @@ export const ResponsiveProvider = ({
   children: React.ReactNode;
 }) => {
   const [responsive, setResponsive] = useState<IResponsive>({
-    isMobileLow: window.innerWidth <= 500,
-    isMobile: window.innerWidth <= 768,
-    isTablet: window.innerWidth <= 1024 && window.innerWidth > 768,
-    isDesktop: window.innerWidth > 1024,
+    isMobileLow: false,
+    isMobile: false,
+    isTablet: false,
+    isDesktop: false,
   });
   useEffect(() => {
     const handleResize = () => {
+      const width = window.innerWidth;
       setResponsive({
-        isMobileLow: window.innerWidth <= 500,
-        isMobile: window.innerWidth <= 768,
-        isTablet: window.innerWidth <= 1024 && window.innerWidth > 768,
-        isDesktop: window.innerWidth > 1024,
+        isMobileLow: width < 500,
+        isMobile: width < 768,
+        isTablet: width > 768 && width < 1024,
+        isDesktop: width > 1024,
       });
     };
-    window.addEventListener("resize", handleResize);
 
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (

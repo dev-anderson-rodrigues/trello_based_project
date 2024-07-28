@@ -1,19 +1,19 @@
 import { Outlet } from "react-router-dom";
-import { useResponsive } from "../../context/ResponsiveContext/useResponsive";
-import { Container } from "./styles";
+import { forwardRef } from "react";
+import { propsContainer } from "./types";
+import ContainerPersonalized from "../divContainer/ContainerPersonalized";
 
-const BaseLayout = () => {
-  const { isTablet, isDesktop } = useResponsive();
+const BaseLayout = forwardRef<HTMLDivElement, propsContainer>((rest, ref) => {
   return (
-    <Container
-      style={{
-        paddingLeft: isTablet && isDesktop ? "0px" : "0px",
-        paddingRight: isTablet && isDesktop ? "0px" : "0px",
-      }}
+    <ContainerPersonalized
+      ref={ref}
+      {...rest}
+      className="base_layout"
+      tagSemantica="main"
     >
       <Outlet />
-    </Container>
+    </ContainerPersonalized>
   );
-};
+});
 
 export default BaseLayout;

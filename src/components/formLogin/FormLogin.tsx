@@ -1,16 +1,17 @@
 import { useForm } from "react-hook-form";
-// import { useNavigate } from "react-router-dom";
-// import { useAuth } from "../../context/AuthContext/useAuth";
 import Input from "../input/Input";
 import { Box } from "@mui/material";
 import { Form } from "./styles";
 import { useResponsive } from "../../context/ResponsiveContext/useResponsive";
-import { useState } from "react";
-import { useAuth } from "../../context/AuthContext/useAuth";
-import { User } from "../../context/AuthContext/types";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { createUserType } from "../../context/AuthContext/types";
+import { useAuth } from "../../context/AuthContext/useAuth";
+import ContainerPersonalized from "../divContainer/ContainerPersonalized";
 
 const FormLogin = () => {
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isMessage, setIsMessage] = useState<string | null>(null);
   const { login, createUser } = useAuth();
   const { isMobile, isMobileLow } = useResponsive();
   const [registration, setRegistration] = useState(false);
@@ -20,43 +21,60 @@ const FormLogin = () => {
     register,
     getValues,
     reset,
-    formState: { errors, isSubmitting, isValid },
-  } = useForm<User>();
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<createUserType>();
   const navigate = useNavigate();
 
-  const handleFormSubmit = async ({
-    name,
-    email,
-    password,
-    confirmPassword,
-  }: User) => {
-    if (registration) {
-      if (!name || !email || !password || !confirmPassword) {
-        console.error("Email or password is missing");
-        return {
-          success: false,
-          message: "Email or password is missing",
-        };
+  useEffect(() => {
+    // Recupera o último e-mail logado do localStorage quando o componente é montado
+    const savedCredentials = localStorage.getItem("usersLogged");
+    if (savedCredentials) {
+      try {
+        const { email, password } = JSON.parse(savedCredentials);
+        setValue("email", email);
+        setValue("password", password);
+      } catch (error) {
+        console.error("Failed to parse saved credentials:", error);
       }
-      if (password !== confirmPassword) {
-        console.error("Passwords do not match");
-        return;
-      }
-      const response = await createUser(name, email, password);
-      navigate("/dashboard");
-      return response;
-    } else {
-      if (!email || !password) {
-        console.error("Email or password is missing");
-        return {
-          success: false,
-          message: "Email or password is missing",
-        };
-      }
-      const response = await login(email, password);
+    }
+  }, [setValue]);
 
-      navigate("/dashboard");
-      return response;
+  const handleFormSubmit = async (data: createUserType) => {
+    const credentials = { email: data.email, password: data.password };
+    localStorage.setItem("usersLogged", JSON.stringify(credentials));
+
+    if (registration) {
+      try {
+        const response = await createUser(data);
+
+        if (response!.status === 201) {
+          setIsMessage(() => "Usuário criado com sucesso!");
+          setTimeout(() => {
+            setIsMessage("");
+            reset(); // Reset the form values
+            setRegistration(false);
+          }, 3000);
+        }
+        return response;
+      } catch (error) {
+        if (error instanceof Error) setErrorMessage(error.message);
+      }
+    } else {
+      try {
+        setErrorMessage(() => null);
+        const response = await login({
+          email: data.email,
+          password: data.password,
+        });
+
+        if (response.status === 200) {
+          navigate("/dashboard");
+        }
+        return response;
+      } catch (error) {
+        if (error instanceof Error) setErrorMessage(error.message);
+      }
     }
   };
 
@@ -110,7 +128,7 @@ const FormLogin = () => {
         <Input
           label="Email"
           type="email"
-          autoComplete="email"
+          autoComplete={registration ? "new-email" : "current-email"}
           {...register("email", {
             required: "Email é obrigatório",
             pattern: {
@@ -125,7 +143,7 @@ const FormLogin = () => {
         <Input
           label="Password"
           type="password"
-          autoComplete="current-password"
+          autoComplete={registration ? "new-password" : "current-password"}
           {...register("password", {
             required: "Senha é obrigatória",
             minLength: {
@@ -136,11 +154,11 @@ const FormLogin = () => {
               value: 30,
               message: "A senha não pode ter mais de 30 caracteres",
             },
-            pattern: {
-              value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,30}$/,
-              message:
-                "A senha deve conter uma letra maiúscula, uma minúscula, um número, um caractere especial válido e não pode ter menos de 6 caracteres. {@$!%*?&}",
-            },
+            // pattern: {
+            //   value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[.@$!%*?&])[A-Za-z\d@$!%*?&]{6,30}$/,
+            //   message:
+            //     "A senha deve conter uma letra maiúscula, uma minúscula, um número, um caractere especial válido e não pode ter menos de 6 caracteres. {@.$!%*?&}",
+            // },
           })}
           error={!!errors.password?.message}
           helperText={errors.password?.message}
@@ -158,9 +176,33 @@ const FormLogin = () => {
             helperText={errors.confirmPassword?.message}
           />
         )}
-        <button type="submit" disabled={isSubmitting && !isValid}>
+        <button type="submit">
           {isSubmitting ? "Loading..." : registration ? "Cadastrar" : "Entrar"}
         </button>
+        {errorMessage && (
+          <ContainerPersonalized
+            tagSemantica="section"
+            // tagSemantica="section"
+            style={{
+              maxWidth: "90%",
+              color: "#d32f2f",
+            }}
+          >
+            {errorMessage}
+          </ContainerPersonalized>
+        )}
+
+        {isMessage && (
+          <div
+            // tagSemantica="section"
+            style={{
+              maxWidth: "90%",
+              color: "#d32f2f",
+            }}
+          >
+            {isMessage}
+          </div>
+        )}
 
         {registration ? (
           <p
@@ -180,7 +222,9 @@ const FormLogin = () => {
             <a
               href="#"
               onClick={() => {
-                setRegistration(!registration), reset();
+                reset(),
+                  setRegistration(!registration),
+                  setErrorMessage(() => null);
               }}
             >
               Crie uma agora
