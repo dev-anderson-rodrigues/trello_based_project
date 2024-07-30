@@ -3,8 +3,10 @@ import { IAuthContext, IUser, createUserType, loginType } from "./types";
 import {
   login as apiLogin,
   create as apiCreateUser,
-  SignOut as apiSignOut,
+  getDadosProfileLocalStorage,
+  setDadosProfileLocalStorage,
   getTokenLocalStorage,
+  isTokenExpired,
 } from "./util";
 
 export const AuthContext = createContext<IAuthContext | undefined>(undefined);
@@ -14,25 +16,42 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<IUser | null>(null);
 
   useEffect(() => {
-    const storedTokenUser = getTokenLocalStorage();
-    if (storedTokenUser) {
-      setUser(storedTokenUser);
-      setIsAuthenticated(() => true);
+    const token = getTokenLocalStorage();
+    const user = getDadosProfileLocalStorage();
+    if (token) {
+      setUser(user);
+      setIsAuthenticated(true);
+    }
+    console.log(user);
+    if (isTokenExpired(token)) {
+      apiLogin({ email: user?.email, password: user?.password });
     }
   }, []);
 
   const login = async (payload: loginType) => {
-    const data = await apiLogin(payload);
-    setUser(data.data);
+    const { name } = await apiLogin(payload);
+
+    setUser({ ...payload, name });
+    setDadosProfileLocalStorage({ ...payload, name });
+    console.log({ ...payload });
+    setIsAuthenticated(true);
+
+    return name;
+  };
+
+  const createUser = async (payload: createUserType) => {
+    const data = await apiCreateUser(payload);
+    await apiLogin({
+      email: payload.email,
+      password: payload.password,
+    });
+    setDadosProfileLocalStorage({ ...payload });
     setIsAuthenticated(() => true);
     return data;
   };
-  const createUser = async (payload: createUserType) => {
-    const data = await apiCreateUser(payload);
-    return data;
-  };
+
   const logout = async () => {
-    await apiSignOut();
+    localStorage.removeItem("token");
     setUser(null);
     setIsAuthenticated(() => false);
   };

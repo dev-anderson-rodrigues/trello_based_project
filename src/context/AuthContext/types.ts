@@ -3,12 +3,14 @@ import { AxiosResponse } from "axios";
 import { Dispatch, SetStateAction } from "react";
 
 export interface IUser {
-  token: string;
+  token?: string;
   avatar?: string;
   email?: string;
-  name?: string;
-  id?: number;
   password?: string;
+  name?: string;
+  first_name?: string;
+  last_name?: string;
+  id?: number;
 }
 
 export interface IAuthContext {
@@ -17,14 +19,12 @@ export interface IAuthContext {
   setIsAuthenticated: Dispatch<SetStateAction<boolean>>;
   setUser: Dispatch<SetStateAction<IUser | null>>;
   login: (payload: loginType) => Promise<AxiosResponse<any, any>>;
-  createUser: (
-    payload: createUserType
-  ) => Promise<AxiosResponse<any, any> | undefined>;
+  createUser: (payload: createUserType) => Promise<AxiosResponse<any, any>>;
   logout: () => void;
 }
 export type loginType = {
-  email: string;
-  password: string;
+  email?: string;
+  password?: string;
 };
 export type createUserType = {
   name?: string;

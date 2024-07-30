@@ -8,6 +8,11 @@ import { useNavigate } from "react-router-dom";
 import { createUserType } from "../../context/AuthContext/types";
 import { useAuth } from "../../context/AuthContext/useAuth";
 import ContainerPersonalized from "../divContainer/ContainerPersonalized";
+import {
+  getDadosProfileLocalStorage,
+  setDadosProfileLocalStorage,
+} from "../../context/AuthContext/util";
+// import ContainerPersonalized from "../divContainer/ContainerPersonalized";
 
 const FormLogin = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -28,10 +33,11 @@ const FormLogin = () => {
 
   useEffect(() => {
     // Recupera o último e-mail logado do localStorage quando o componente é montado
-    const savedCredentials = localStorage.getItem("usersLogged");
+    const savedCredentials = getDadosProfileLocalStorage();
     if (savedCredentials) {
       try {
-        const { email, password } = JSON.parse(savedCredentials);
+        const { email, password } = savedCredentials;
+
         setValue("email", email);
         setValue("password", password);
       } catch (error) {
@@ -41,36 +47,34 @@ const FormLogin = () => {
   }, [setValue]);
 
   const handleFormSubmit = async (data: createUserType) => {
-    const credentials = { email: data.email, password: data.password };
-    localStorage.setItem("usersLogged", JSON.stringify(credentials));
-
     if (registration) {
       try {
         const response = await createUser(data);
-
+        console.log(response);
         if (response!.status === 201) {
           setIsMessage(() => "Usuário criado com sucesso!");
           setTimeout(() => {
             setIsMessage("");
             reset(); // Reset the form values
-            setRegistration(false);
-          }, 3000);
+            navigate("/dashboard");
+          }, 1500);
         }
         return response;
       } catch (error) {
         if (error instanceof Error) setErrorMessage(error.message);
+        setIsMessage(() => null);
       }
     } else {
+      const credentials = { email: data.email, password: data.password };
+      setDadosProfileLocalStorage(credentials);
+
       try {
-        setErrorMessage(() => null);
         const response = await login({
           email: data.email,
           password: data.password,
         });
 
-        if (response.status === 200) {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard");
         return response;
       } catch (error) {
         if (error instanceof Error) setErrorMessage(error.message);
@@ -95,7 +99,12 @@ const FormLogin = () => {
         alignItems: "center",
       }}
     >
-      <Form onSubmit={handleSubmit(handleFormSubmit)}>
+      <Form
+        onSubmit={handleSubmit(
+          // Evita o envio automático do formulário
+          handleFormSubmit
+        )}
+      >
         {isMobile && (
           <span
             className="logo"
@@ -182,10 +191,11 @@ const FormLogin = () => {
         {errorMessage && (
           <ContainerPersonalized
             tagSemantica="section"
-            // tagSemantica="section"
             style={{
               maxWidth: "90%",
               color: "#d32f2f",
+              borderRadius: "10px",
+              padding: "5px",
             }}
           >
             {errorMessage}
@@ -193,15 +203,17 @@ const FormLogin = () => {
         )}
 
         {isMessage && (
-          <div
-            // tagSemantica="section"
+          <ContainerPersonalized
+            tagSemantica="section"
             style={{
               maxWidth: "90%",
               color: "#d32f2f",
+              borderRadius: "10px",
+              padding: "5px",
             }}
           >
             {isMessage}
-          </div>
+          </ContainerPersonalized>
         )}
 
         {registration ? (
@@ -222,9 +234,8 @@ const FormLogin = () => {
             <a
               href="#"
               onClick={() => {
-                reset(),
-                  setRegistration(!registration),
-                  setErrorMessage(() => null);
+                reset(), setRegistration(!registration);
+                setErrorMessage(() => null);
               }}
             >
               Crie uma agora

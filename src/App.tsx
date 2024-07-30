@@ -9,13 +9,13 @@ import NotFound from "./pages/notFound/NotFound";
 function App() {
   return (
     <>
-      <GlobalStyle />
       <Router>
+        <GlobalStyle />
         <Routes>
-          <Route element={<BaseLayout />}>
+          <Route path="/" element={<BaseLayout />}>
             <Route index element={<Login />} />
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Teste />} />
+              <Route path="dashboard" element={<Teste />} />
             </Route>
           </Route>
           <Route path="*" element={<NotFound />} />

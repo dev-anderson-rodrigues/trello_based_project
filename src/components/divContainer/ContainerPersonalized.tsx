@@ -17,6 +17,12 @@ const ContainerPersonalized = forwardRef<HTMLDivElement, propsContainer>(
         style: {
           paddingLeft: paddingLeft,
           paddingRight: paddingRight,
+          width: "100vw",
+          ...(isTablet && isDesktop ? { maxWidth: "100%" } : {}),
+          justifyContent: "center",
+          display: "flex",
+          alignItems: "center",
+          textAlign: "center",
           ...style,
         } as React.CSSProperties,
         ref: ref,

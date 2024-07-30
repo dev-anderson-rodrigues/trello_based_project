@@ -1,17 +1,22 @@
 import ContainerPersonalized from "../../components/divContainer/ContainerPersonalized";
+import Header from "../../components/header";
 import { useAuth } from "../../context/AuthContext/useAuth";
-import { useResponsive } from "../../context/ResponsiveContext/useResponsive";
 
 const Teste = () => {
   const { logout } = useAuth();
-  const { isMobile } = useResponsive();
+
   return (
-    <ContainerPersonalized tagSemantica="section">
-      {!isMobile && (
-        <span className="logo">
-          <h2>Arnia Trello</h2>
-        </span>
-      )}
+    <ContainerPersonalized
+      tagSemantica="section"
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        justifyContent: "space-between",
+        height: "100vh",
+      }}
+    >
+      <Header />
+
       <h2>Teste</h2>
       <button onClick={logout}>Logout</button>
     </ContainerPersonalized>
