@@ -28,7 +28,9 @@ const FormLogin = () => {
     reset,
     setValue,
     formState: { errors, isSubmitting },
-  } = useForm<createUserType>();
+  } = useForm<createUserType>({
+    mode: "onSubmit",
+  });
   const navigate = useNavigate();
 
   useEffect(() => {

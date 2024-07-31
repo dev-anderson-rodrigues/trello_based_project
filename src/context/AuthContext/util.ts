@@ -58,7 +58,7 @@ export const login = async (data: loginType) => {
       }
       console.error("Erro de login:", error.response?.data || error.message);
     } else {
-      console.error("Erro inesperado:", error);
+      throw new Error("Credenciais inválidas");
     }
     throw error;
   }

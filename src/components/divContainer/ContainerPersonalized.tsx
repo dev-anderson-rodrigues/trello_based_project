@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { useResponsive } from "../../context/ResponsiveContext/useResponsive";
-import { propsContainer } from "../baseLayout/types";
+import { propsContainer } from "./types";
 import { Outlet } from "react-router-dom";
 import React from "react";
 

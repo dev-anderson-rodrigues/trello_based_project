@@ -48,7 +48,6 @@ const Modal = ({ children }: { children: ReactNode }) => {
 
 export default Modal;
 
-// Adicione as animações CSS
 const style = document.createElement("style");
 style.innerHTML = `
   @keyframes spin {

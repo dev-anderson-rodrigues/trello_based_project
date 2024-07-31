@@ -22,9 +22,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setUser(user);
       setIsAuthenticated(true);
     }
-    console.log(user);
     if (isTokenExpired(token)) {
-      apiLogin({ email: user?.email, password: user?.password });
+      console.log("Token expired");
+      async () => {
+        await apiLogin({ email: user?.email, password: user?.password });
+      };
     }
   }, []);
 

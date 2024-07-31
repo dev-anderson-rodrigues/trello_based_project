@@ -16,7 +16,8 @@ const Header = () => {
       tagSemantica="header"
       style={{
         width: "100vw",
-        backgroundColor: "#26243f",
+        height: "6vh",
+        backgroundColor: "#1a1033",
         display: "flex",
         flexDirection: "row",
         justifyContent: "space-between",
@@ -33,6 +34,7 @@ const Header = () => {
             textAlign: "start",
             fontSize: "1.4em",
             color: "#ffff",
+            marginLeft: "20px",
           }}
         >
           Arnia Trello
