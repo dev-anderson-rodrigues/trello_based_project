@@ -6,7 +6,6 @@ import {
   getDadosProfileLocalStorage,
   setDadosProfileLocalStorage,
   getTokenLocalStorage,
-  isTokenExpired,
 } from "./util";
 
 export const AuthContext = createContext<IAuthContext | undefined>(undefined);
@@ -20,14 +19,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const user = getDadosProfileLocalStorage();
     if (token) {
       setUser(user);
-      setIsAuthenticated(true);
+      setIsAuthenticated(() => true);
     }
-    if (isTokenExpired(token)) {
-      console.log("Token expired");
-      async () => {
-        await apiLogin({ email: user?.email, password: user?.password });
-      };
-    }
+    // console.log("renderizou token");
+    // if (isTokenExpired(token) && isAuthenticated) {
+    //   console.log("Token expired");
+    //   async () => {
+    //     await apiLogin({ email: user?.email, password: user?.password });
+    //   };
+    // }
   }, []);
 
   const login = async (payload: loginType) => {

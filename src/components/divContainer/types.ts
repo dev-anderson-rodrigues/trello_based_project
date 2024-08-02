@@ -1,13 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { HTMLAttributes } from "react";
+import { Theme } from "@emotion/react";
+import { CSSProperties, HTMLAttributes } from "react";
 
 export interface propsContainer extends HTMLAttributes<HTMLDivElement> {
-  width?: string;
-  height?: string;
-  display?: string;
-  backgroundColor?: string;
-  paddingLeft?: string;
-  paddingRight?: string;
+  children?: React.ReactNode;
+  style?: CSSProperties;
+  isTablet?: boolean;
+  isDesktop?: boolean;
+  theme: Theme;
   [key: string]: any;
-  tagSemantica: keyof JSX.IntrinsicElements;
+  tagSemantica?: React.ElementType;
 }

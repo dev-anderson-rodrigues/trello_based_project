@@ -1,14 +1,9 @@
 import React, { useState } from "react";
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Divider,
-  createSvgIcon,
-} from "@mui/material";
+import { Drawer, List, ListItem, Divider, createSvgIcon } from "@mui/material";
 import AddBoardModal from "./AddBoardModal";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { useTheme } from "styled-components";
+import ToggleButton from "../toogleTheme";
 
 const PlusIcon = createSvgIcon(
   <svg
@@ -27,19 +22,39 @@ const PlusIcon = createSvgIcon(
   "Plus"
 );
 
-const Sidebar: React.FC = () => {
+interface SidebarProps {
+  onAddBoard: (newBoard: string) => void;
+  onBoardClick: (boardId: number) => void;
+}
+
+const Sidebar: React.FC<SidebarProps> = ({ onAddBoard, onBoardClick }) => {
   const [open, setOpen] = useState(false);
-  const [boards, setBoards] = useState<string[]>([]);
+  const [boards, setBoards] = useState<{ id: number; name: string }[]>([]);
+  const theme = useTheme();
 
   const handleDrawerToggle = () => setOpen(true);
   const handleCloseModal = () => setOpen(false);
 
   const handleAddBoard = (name: string) => {
-    setBoards([...boards, name]);
+    const newBoard = { id: boards.length + 1, name };
+    setBoards([...boards, newBoard]);
+    if (name) {
+      onAddBoard(name);
+    }
+  };
+
+  const handleDeleteBoard = (id: number) => {
+    setBoards(boards.filter((board) => board.id !== id));
   };
 
   return (
     <>
+      <section
+        aria-hidden="false"
+        style={{ display: "flex", overflowX: "auto", whiteSpace: "nowrap" }}
+      >
+        {/* ... Your section styles ... */}
+      </section>
       <Drawer
         sx={{
           width: 240,
@@ -48,8 +63,8 @@ const Sidebar: React.FC = () => {
             width: 240,
             boxSizing: "border-box",
             top: 55,
-            backgroundColor: "#1a1033",
-            color: "#ffffff",
+            backgroundColor: theme.colors.background.primary,
+            color: theme.colors.text_color.secondary,
           },
         }}
         variant="permanent"
@@ -64,14 +79,20 @@ const Sidebar: React.FC = () => {
               alignItems: "center",
               backgroundColor: "transparent",
               padding: "10px",
-              color: "#ffffff",
-              borderBottom: "1px solid #535bf2",
-              gap: "10px",
+              borderBottom: `1px solid ${theme.colors.text_color.secondary}`,
+              gap: "5px",
             }}
           >
-            <h3>Seus quadros</h3>
-            <ListItem
-              button
+            <h3
+              style={{
+                color: theme.colors.text_color.secondary,
+                fontWeight: "600",
+                fontFamily: "Poppins",
+              }}
+            >
+              Seus quadros
+            </h3>
+            <div
               style={{
                 maxWidth: "40px",
                 maxHeight: "40px",
@@ -84,27 +105,30 @@ const Sidebar: React.FC = () => {
               onClick={handleDrawerToggle}
             >
               <PlusIcon style={{ width: "40px" }} />
-            </ListItem>
+            </div>
           </div>
 
           <Divider />
-          {boards.map((board, index) => (
+          {boards.map(({ id, name }) => (
             <ListItem
               button
-              key={index}
+              aria-hidden="false"
+              onClick={() => onBoardClick(id)}
+              key={id}
               style={{
-                padding: "10px",
-                color: "#ffffff",
+                padding: "1px",
+                color: theme.colors.text_color.secondary,
                 textAlign: "left",
-                marginLeft: "20px",
                 marginTop: "20px",
-                maxWidth: "80%",
+                marginLeft: "20px",
+                maxWidth: "76%",
+                borderRadius: "7px",
+                display: "flex",
+                justifyContent: "space-between",
               }}
             >
-              <ListItemText primary={board} />
-              <DeleteIcon
-                onClick={() => setBoards(boards.filter((b) => b !== board))}
-              />
+              <ToggleButton>{name}</ToggleButton>
+              <DeleteIcon onClick={() => handleDeleteBoard(id)} />
             </ListItem>
           ))}
           <Divider />

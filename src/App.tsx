@@ -12,27 +12,36 @@ import Header from "./components/header";
 import { useAuth } from "./context/AuthContext/useAuth";
 import BaseLayout from "./components/baseLayout/Base";
 import Dashboard from "./pages/dashbord/Dashboard";
-
+import { ThemeProvider } from "styled-components";
+import { useState } from "react";
+import { lightTheme, darkTheme, themeMain } from "./styles/theme";
+const themes = [themeMain, lightTheme, darkTheme];
 const AppContent = () => {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-
-  // Não mostrar o Header na página de login
   const shouldShowHeader = isAuthenticated && location.pathname !== "/";
+  const [currentThemeIndex, setCurrentThemeIndex] = useState(0);
+  const currentTheme = themes[currentThemeIndex];
+
+  const toggleTheme = () => {
+    setCurrentThemeIndex((prevIndex) => (prevIndex + 1) % themes.length);
+  };
 
   return (
     <>
-      <GlobalStyle />
-      {shouldShowHeader && <Header />}
-      <Routes>
-        <Route index element={<Login />} />
-        <Route path="/" element={<BaseLayout />}>
-          <Route element={<ProtectedRoute />}>
-            <Route path="dashboard" element={<Dashboard />} />
+      <ThemeProvider theme={currentTheme}>
+        <GlobalStyle />
+        {shouldShowHeader && <Header toggleTheme={toggleTheme} />}
+        <Routes>
+          <Route index element={<Login />} />
+          <Route path="/" element={<BaseLayout />}>
+            <Route element={<ProtectedRoute />}>
+              <Route path="dashboard" element={<Dashboard />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
           </Route>
-          <Route path="*" element={<NotFound />} />
-        </Route>
-      </Routes>
+        </Routes>
+      </ThemeProvider>
     </>
   );
 };
